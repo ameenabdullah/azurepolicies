@@ -1,0 +1,76 @@
+{
+ "properties": {
+  "displayName": "Denies NSG rule changes that allow all inbound traffic",
+  "policyType": "Custom",
+  "mode": "All",
+  "description": "Denies people from changing NSG rules that allow all inbound traffic",
+  "metadata": {
+   "createdBy": "798c32d6-060a-45ab-bef7-1d5edf39866a",
+   "createdOn": "2021-02-23T16:37:51.7139936Z",
+   "updatedBy": null,
+   "updatedOn": null
+  },
+  "policyRule": {
+   "if": {
+    "allOf": [
+     {
+      "field": "type",
+      "equals": "Microsoft.Network/networkSecurityGroups/securityRules"
+     },
+     {
+      "allOf": [
+       {
+        "field": "Microsoft.Network/networkSecurityGroups/securityRules/access",
+        "equals": "Allow"
+       },
+       {
+        "field": "Microsoft.Network/networkSecurityGroups/securityRules/direction",
+        "equals": "Inbound"
+       },
+       {
+        "anyOf": [
+         {
+          "field": "Microsoft.Network/networkSecurityGroups/securityRules/destinationPortRange",
+          "equals": "*"
+         },
+         {
+          "not": {
+           "field": "Microsoft.Network/networkSecurityGroups/securityRules/destinationPortRanges[*]",
+           "notEquals": "*"
+          }
+         }
+        ]
+       },
+       {
+        "anyOf": [
+         {
+          "field": "Microsoft.Network/networkSecurityGroups/securityRules/sourceAddressPrefix",
+          "in": [
+           "*",
+           "Internet"
+          ]
+         },
+         {
+          "not": {
+           "field": "Microsoft.Network/networkSecurityGroups/securityRules/sourceAddressPrefixes[*]",
+           "notIn": [
+            "*",
+            "Internet"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "then": {
+    "effect": "deny"
+   }
+  }
+ },
+ "id": "/subscriptions/411b9793-9439-4914-b1cd-bce165e1aba6/providers/Microsoft.Authorization/policyDefinitions/deny-nsg-inbound-allow-all",
+ "type": "Microsoft.Authorization/policyDefinitions",
+ "name": "deny-nsg-inbound-allow-all"
+}
